@@ -23,7 +23,7 @@ class DifferentialEvolution:
         self.target = np.array(target).astype(np.float16)
            
         # Hyper-parameters
-        self.iterations: int = 20000
+        self.iterations: int = 10000
         self.crossover_rate: float = 0.01
         self.number_individuals: int = multiprocessing.cpu_count()
         self.loss = 'mse'

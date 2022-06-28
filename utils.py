@@ -6,7 +6,7 @@ import numpy as np
 from PIL import Image, ImageDraw
 
 width, height = 400, 400
-number_triangles = 1000
+number_triangles = 100
 
 os.environ["KMP_DUPLICATE_LIB_OK"] = "TRUE"
 

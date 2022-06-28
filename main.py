@@ -11,7 +11,6 @@ target_name = 'darwin'
 target = load_target_image(file_name=f'targets/{target_name}.jpg', plot=False)
 target = np.array(target).astype(np.float32)
 
-# Initialize center with differential evolution
 de = DifferentialEvolution(target_name, target)
 de.optimize()
 x0 = de.get_best()
