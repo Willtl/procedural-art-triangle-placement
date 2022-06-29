@@ -6,7 +6,9 @@ import numpy as np
 from PIL import Image, ImageDraw
 
 width, height = 400, 400
-number_triangles = 100
+half_width, half_height = width // 2, height // 2
+shape = ['triangle', 'ellipse'][1]
+number_of_shapes = 100
 
 os.environ["KMP_DUPLICATE_LIB_OK"] = "TRUE"
 
@@ -27,8 +29,30 @@ def draw_triangles_pil(pos: np.ndarray):
                 (int(pos[i + 2] * width), int(pos[i + 3] * width)),
                 (int(pos[i + 4] * width), int(pos[i + 5] * width))
             ],
-            fill=(int(pos[i + 6] * 255), int(pos[i + 7] * 255), int(pos[i + 8] * 255), int(max(0.1, pos[i + 9]) * 255)))
+            fill=(int(pos[i + 6] * 255), int(pos[i + 7] * 255), int(pos[i + 8] * 255), int(pos[i + 9] * 255)))
     del draw
+    return image
+
+
+def draw_circles_pil(pos: np.ndarray):
+    noise = np.random.uniform(0, 255, (width, height))
+    image = Image.fromarray(noise).convert('RGB')
+
+    draw = ImageDraw.Draw(image, mode='RGBA')
+    for i in range(0, pos.shape[0], 8):
+        x1, y1 = int(pos[i] * width), int(pos[i + 1] * width)
+        x2, y2 = int(pos[i + 2] * half_width), int(pos[i + 3] * half_width)
+        r, g, b, a = int(pos[i + 4] * 255), int(pos[i + 5] * 255), int(pos[i + 6] * 255), int(pos[i + 7] * 255),
+        draw.ellipse(
+            [
+                (x1, y1),
+                (x2, y2)
+            ],
+            fill=(r, g, b, a))
+    del draw
+    plt.imshow(image)
+    plt.tight_layout()
+    plt.show()
     return image
 
 

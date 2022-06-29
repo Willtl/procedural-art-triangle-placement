@@ -7,7 +7,7 @@ from differential_evolution import DifferentialEvolution
 from pgpelib import PGPE
 from utils import *
 
-target_name = 'darwin'
+target_name = 'mona'
 target = load_target_image(file_name=f'targets/{target_name}.jpg', plot=False)
 target = np.array(target).astype(np.float32)
 

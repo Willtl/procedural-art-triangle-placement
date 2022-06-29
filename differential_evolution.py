@@ -11,7 +11,7 @@ from joblib import Parallel, delayed
 from skimage.metrics import structural_similarity as ssim
 
 import utils
-from utils import number_triangles, draw_triangles_pil
+from utils import number_of_shapes, draw_triangles_pil, draw_circles_pil
 
 os.environ['KMP_DUPLICATE_LIB_OK'] = 'True'
 
@@ -21,7 +21,7 @@ class DifferentialEvolution:
         # Target image
         self.target_name = target_name
         self.target = np.array(target).astype(np.float16)
-           
+
         # Hyper-parameters
         self.iterations: int = 10000
         self.crossover_rate: float = 0.01
@@ -29,7 +29,8 @@ class DifferentialEvolution:
         self.loss = 'mse'
 
         # Problem related params
-        self.dimensions: int = 10 * number_triangles
+        self.evaluation = draw_triangles_pil if utils.shape == 'triangle' else draw_circles_pil
+        self.dimensions: int = 10 * number_of_shapes if utils.shape == 'triangle' else 8 * number_of_shapes
         self.pop: np.ndarray = np.random.uniform(0.0, 1.0, (self.number_individuals, self.dimensions)).astype(
             np.float32)
         self.pop_t1: np.ndarray = np.copy(self.pop)
@@ -62,7 +63,7 @@ class DifferentialEvolution:
                 start = time.time()
 
         best = np.argmin(self.fitness)
-        img = draw_triangles_pil(self.pop_t1[best])
+        img = self.evaluation(self.pop_t1[best])
         plt.imshow(img)
         plt.tight_layout()
         plt.savefig(f'results/{self.target_name}_diff_evo.png', bbox_inches='tight')
@@ -87,7 +88,7 @@ class DifferentialEvolution:
 
     def render(self, index: int):
         # Draw triangles
-        img = draw_triangles_pil(self.pop_t1[index])
+        img = self.evaluation(self.pop_t1[index])
 
         if self.loss == 'mse':
             # fitness = np.mean((self.target - img) ** 2, dtype=np.float32)
@@ -96,7 +97,7 @@ class DifferentialEvolution:
             fitness = 1.0 - ssim(self.target, np.array(img), channel_axis=2)
 
         return fitness
-   
+
     def get_best(self):
         index = np.argmin(self.fitness)
         return self.pop[index]
