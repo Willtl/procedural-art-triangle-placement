@@ -5,7 +5,7 @@ The mean squared error between drawing and target painting is minimized through 
  
 
 
-#### Table 1. Best solution obtained with DE is used to initialize the center of the PGPE. Target and optimized image resolutions are 400x400. Target and optimized images resolutions are 400x400. 
+#### Table 1. DE's best solution is used to initialize PGPE's center point. Target and optimized image resolutions are 400x400. 
 Target |                      DE (1k ite.)                       |              PGPE with ClipUp (10k ite.)               
 :----:|:-------------------------------------------------------:|:-------------------------------------------------------------:
 <img src="targets/mona.jpg" width="250" /> |   <img src="results/final/mona_de.png" width="250" />   |     <img src="results/final/mona_pgpe.png" width="250" />     |
