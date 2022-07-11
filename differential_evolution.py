@@ -4,7 +4,6 @@ import random
 import time
 
 import PIL
-import matplotlib.pyplot as plt
 import numpy as np
 from PIL import Image
 from joblib import Parallel, delayed
@@ -23,7 +22,7 @@ class DifferentialEvolution:
         self.target = np.array(target).astype(np.float16)
 
         # Hyper-parameters
-        self.iterations: int = 10000
+        self.iterations: int = 1000
         self.crossover_rate: float = 0.01
         self.number_individuals: int = multiprocessing.cpu_count()
         self.loss = 'mse'
@@ -63,10 +62,7 @@ class DifferentialEvolution:
                 start = time.time()
 
         best = np.argmin(self.fitness)
-        img = self.evaluation(self.pop_t1[best])
-        plt.imshow(img)
-        plt.tight_layout()
-        plt.savefig(f'results/{self.target_name}_diff_evo.png', bbox_inches='tight')
+        utils.render_high_res(self.pop_t1[best], f'de_{self.target_name}')
 
     def evaluate(self):
         fitness = Parallel(n_jobs=multiprocessing.cpu_count())(

@@ -1,4 +1,5 @@
 import multiprocessing
+import sys
 
 from joblib import Parallel, delayed
 
@@ -14,6 +15,8 @@ target = np.array(target).astype(np.float32)
 de = DifferentialEvolution(target_name, target)
 de.optimize()
 x0 = de.get_best()
+
+eval_func = draw_triangles_pil if utils.shape == 'triangle' else draw_circles_pil
 
 n = x0.shape[0]
 pgpe = PGPE(
@@ -32,26 +35,32 @@ pgpe = PGPE(
 
 
 def evaluate(solution):
-    min_v, max_v = solution.min(), solution.max()
-    solution = (np.copy(solution) - min_v) / (max_v - min_v)
-    img = draw_triangles_pil(solution)
+    minv, maxv = solution.min(), solution.max()
+    solution = (np.copy(solution) - minv) / (maxv - minv)
+    img = eval_func(solution)
     img = np.array(img).astype(np.float32)
     return -utils.mse(target, img)
 
 
-num_iterations = 10000
+best_center, best_obj = None, -sys.maxsize
+num_iterations = 40000
 for i in range(1, 1 + num_iterations):
     solutions = pgpe.ask()
     fitnesses = Parallel(n_jobs=multiprocessing.cpu_count())(
         delayed(evaluate)(x) for x in solutions)
     pgpe.tell(fitnesses)
-    print("Iteration:", i, "  cost: ", evaluate(pgpe.center))
+    obj = evaluate(pgpe.center)
+    if best_obj < obj:
+        best_center = np.copy(pgpe.center)
+        best_obj = obj
+        print('New best found', i, "  cost: ", obj)
+    else:
+        print("Iteration:", i, "  cost: ", obj)
 
-sol = np.copy(pgpe.center)
-min_v, max_v = sol.min(), sol.max()
-sol = (np.copy(sol) - min_v) / (max_v - min_v)
-min_v, max_v = sol.min(), sol.max()
-img = draw_triangles_pil(sol)
-plt.imshow(img)
-plt.tight_layout()
-plt.savefig(f'results/{target_name}_pgpe.png', bbox_inches='tight')
+    if i % 100 == 0:
+        print(f'Rendering', best_obj)
+        sol = np.copy(best_center)
+        min_v, max_v = sol.min(), sol.max()
+        sol = (sol - min_v) / (max_v - min_v)
+        min_v, max_v = sol.min(), sol.max()
+        utils.render_high_res(sol, f'pgpe_{target_name}_{i}')
